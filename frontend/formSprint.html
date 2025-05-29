@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Formulario Sprint</title>
+  <link rel="stylesheet" href="../frontend/css/css.css">
+</head>
+<body>
+  <h1>Crear Sprint</h1>
+  <form id="sprintForm">
+    <input type="text" name="nombre" placeholder="Nombre del Sprint" required>
+    <br>
+    <input type="date" name="fecha_inicio" required>
+    <br>
+    <input type="date" name="fecha_fin" required>
+    <br>
+    <button type="submit">Crear Sprint</button>
+  </form>
+
+  <a href="index.html">Volver al inicio</a>
+
+  <script>
+    document.getElementById('sprintForm').addEventListener('submit', function(e) {
+      e.preventDefault();
+      const form = e.target;
+      const data = {
+        nombre: form.nombre.value,
+        fecha_inicio: form.fecha_inicio.value,
+        fecha_fin: form.fecha_fin.value
+      };
+
+      fetch('http://localhost:8000/api/sprints', {
+        method: 'POST',
+        headers: {'Content-Type':'application/json'},
+        body: JSON.stringify(data)
+      })
+      .then(res => res.json())
+      .then(json => {
+        alert(json.message || 'Sprint creado');
+        form.reset();
+      })
+      .catch(err => alert('Error al crear sprint'));
+    });
+  </script>
+</body>
+</html>

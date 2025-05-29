@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Editar Historia</title>
+  <link rel="stylesheet" href="../frontend/css/css.css">
+</head>
+<body>
+  <h1>Editar Historia</h1>
+
+  <!-- Formulario para pedir el ID -->
+  <form id="buscarForm">
+    <input type="number" id="historiaId" placeholder="ID de la historia" required>
+    <button type="submit">Cargar Historia</button>
+  </form>
+
+  <!-- Formulario principal oculto inicialmente -->
+  <form id="historiaForm" style="display:none;">
+    <input type="text" name="titulo" placeholder="Título" required>
+    <br>
+    <textarea name="descripcion" placeholder="Descripción" required></textarea>
+    <br>
+    <input type="text" name="responsable" placeholder="Responsable" required>
+    <select name="estado" required>
+      <option value="nueva">Nueva</option>
+      <option value="activa">Activa</option>
+      <option value="finalizada">Finalizada</option>
+      <option value="impedimento">Impedimento</option>
+    </select>
+    <br>
+    <input type="number" name="puntos" placeholder="Puntos" required>
+    <br>
+    <input type="date" name="fecha_creacion" required>
+    <br>
+    <input type="date" name="fecha_finalizacion">
+    <br>
+    <select name="sprint_id" id="sprintSelect" required>
+      <option value="">Selecciona un Sprint</option>
+    </select>
+    <br>
+    <button type="submit">Actualizar Historia</button>
+  </form>
+
+  <a href="index.html">Volver al inicio</a>
+
+  <script>
+    let historiaIdGlobal = null;
+
+    function cargarSprints(seleccionado) {
+      fetch('http://localhost:8000/api/sprints')
+        .then(res => res.json())
+        .then(data => {
+          const select = document.getElementById('sprintSelect');
+          select.innerHTML = '<option value="">Selecciona un Sprint</option>';
+          data.forEach(sprint => {
+            const option = document.createElement('option');
+            option.value = sprint.id;
+            option.textContent = sprint.nombre + ' (' + sprint.fecha_inicio + ' - ' + sprint.fecha_fin + ')';
+            if (sprint.id === seleccionado) option.selected = true;
+            select.appendChild(option);
+          });
+        })
+        .catch(err => console.error('Error al cargar sprints:', err));
+    }
+
+    // Buscar historia por ID
+    document.getElementById('buscarForm').addEventListener('submit', function(e) {
+      e.preventDefault();
+      const id = parseInt(document.getElementById('historiaId').value);
+      if (!id) return alert("ID inválido");
+
+      fetch(`http://localhost:8000/api/historias/${id}`)
+        .then(res => {
+          if (!res.ok) throw new Error("Historia no encontrada");
+          return res.json();
+        })
+        .then(historia => {
+          historiaIdGlobal = historia.id;
+          const form = document.getElementById('historiaForm');
+          form.titulo.value = historia.titulo;
+          form.descripcion.value = historia.descripcion;
+          form.responsable.value = historia.responsable;
+          form.estado.value = historia.estado;
+          form.puntos.value = historia.puntos;
+          form.fecha_creacion.value = historia.fecha_creacion;
+          form.fecha_finalizacion.value = historia.fecha_finalizacion || '';
+          cargarSprints(historia.sprint_id);
+          form.style.display = 'block';
+        })
+        .catch(err => {
+          alert('No se pudo cargar la historia');
+          console.error(err);
+        });
+    });
+
+    // Enviar actualización
+    document.getElementById('historiaForm').addEventListener('submit', function(event) {
+      event.preventDefault();
+      const form = event.target;
+      const data = {
+        titulo: form.titulo.value,
+        descripcion: form.descripcion.value,
+        responsable: form.responsable.value,
+        estado: form.estado.value,
+        puntos: parseInt(form.puntos.value),
+        fecha_creacion: form.fecha_creacion.value,
+        fecha_finalizacion: form.fecha_finalizacion.value,
+        sprint_id: parseInt(form.sprint_id.value)
+      };
+
+      fetch(`http://localhost:8000/api/historias/${historiaIdGlobal}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json'
+        },
+        body: JSON.stringify(data)
+      })
+      .then(res => res.json())
+      .then(json => {
+        alert('Historia actualizada con éxito');
+        form.reset();
+        form.style.display = 'none';
+      })
+      .catch(error => {
+        alert('Error al actualizar la historia');
+        console.error(error);
+      });
+    });
+  </script>
+</body>
+</html>
