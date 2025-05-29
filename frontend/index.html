@@ -1,12 +1,65 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Historias User</title>
+  <title>Crear Historia</title>
+  <link rel="stylesheet" href="style.css"> <!-- Tu CSS -->
 </head>
 <body>
-    <h1>Prueba</h1>
-    
+
+<h1>Nueva Historia</h1>
+
+<form id="historiaForm">
+  <input type="text" name="titulo" placeholder="Título" required><br>
+  <textarea name="descripcion" placeholder="Descripción" required></textarea><br>
+  <input type="text" name="responsable" placeholder="Responsable" required><br>
+  <select name="estado" required>
+    <option value="nueva">Nueva</option>
+    <option value="activa">Activa</option>
+    <option value="finalizada">Finalizada</option>
+    <option value="impedimento">Impedimento</option>
+  </select><br>
+  <input type="number" name="puntos" placeholder="Puntos" required><br>
+  <input type="date" name="fecha_creacion" required><br>
+  <input type="date" name="fecha_finalizacion"><br>
+  <input type="number" name="sprint_id" placeholder="Sprint ID" required><br>
+  <button type="submit">Crear</button>
+</form>
+
+<script>
+document.getElementById('historiaForm').addEventListener('submit', function(event) {
+  event.preventDefault(); // Evita el envío clásico
+
+  const form = event.target;
+  const data = {
+    titulo: form.titulo.value,
+    descripcion: form.descripcion.value,
+    responsable: form.responsable.value,
+    estado: form.estado.value,
+    puntos: parseInt(form.puntos.value),
+    fecha_creacion: form.fecha_creacion.value,
+    fecha_finalizacion: form.fecha_finalizacion.value,
+    sprint_id: parseInt(form.sprint_id.value)
+  };
+
+  fetch('http://localhost:8000/api/historias', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Accept': 'application/json'
+    },
+    body: JSON.stringify(data)
+  })
+  .then(response => response.json())
+  .then(json => {
+    alert('Historia creada con éxito');
+    console.log(json);
+  })
+  .catch(error => {
+    alert('Error al crear la historia');
+    console.error(error);
+  });
+});
+</script>
+
 </body>
 </html>
