@@ -6,7 +6,7 @@ use Illuminate\Http\Request;
 use App\Models\Sprint;
 use Illuminate\Support\Facades\Validator;
 
-class sprintController extends Controller
+class SprintController extends Controller
 {
     public function index(){
         $sprints = Sprint::all();

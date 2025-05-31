@@ -7,7 +7,7 @@ use App\Models\Historia;
 use Illuminate\Support\Facades\Validator;
 
 
-class historiaController extends Controller
+class HistoriaController extends Controller
 {
     public function index(){
 
